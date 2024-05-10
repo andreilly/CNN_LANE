@@ -1,0 +1,8 @@
+name: drw_lane
+channels:
+  - defaults
+dependencies:
+  - python=2.7
+  - scipy=1.2.1
+  - tensorflow=1.14.0
+  - keras=2.3.1
