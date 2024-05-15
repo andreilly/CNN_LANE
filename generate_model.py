@@ -1,13 +1,3 @@
-""" This file contains code for a fully convolutional
-(i.e. contains zero fully connected layers) neural network
-for detecting lanes. This version assumes the inputs
-to be road images in the shape of 80 x 160 x 3 (RGB) with
-the labels as 80 x 160 x 1 (just the G channel with a
-re-drawn lane). Note that in order to view a returned image,
-the predictions is later stacked with zero'ed R and B layers
-and added back to the initial road image.
-"""
-
 import numpy as np
 import pickle
 from sklearn.utils import shuffle
