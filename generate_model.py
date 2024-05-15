@@ -19,7 +19,6 @@ def build_CNN(input_dim, pooling_size):
     cnn_model.add(BatchNormalization(input_shape=input_dim))
 
     #region Convolutional Layers (with pooling and dropout) 
-     
     # Conv Layer 1
     cnn_model.add(Conv2D(8, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv1'))
 
@@ -57,9 +56,9 @@ def build_CNN(input_dim, pooling_size):
 
     # Upsample 1
     cnn_model.add(UpSampling2D(size=pooling_size))
-        
     #endregion
 
+    
     #region Deconvolutional Layers 
     # Deconv 1
     cnn_model.add(Conv2DTranspose(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv1'))
@@ -114,16 +113,12 @@ def main():
     train_dataset, labels_dataset = shuffle(train_dataset, labels_dataset)
     X_train, X_val, y_train, y_val = train_test_split(train_dataset, labels_dataset, test_size=0.2)
 
-  
-
     # Data augmentation for improved training
     augmentor = ImageDataGenerator(channel_shift_range=0.2)
     augmentor.fit(X_train)
 
     # Build and compile the CNN
     neural_net = build_CNN(input_dim, pooling_size)
-
-
 
     # Train the CNN
     neural_net.compile(optimizer='Adam', loss='mean_squared_error')
