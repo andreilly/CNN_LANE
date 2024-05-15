@@ -3,7 +3,6 @@ import pickle
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 
-# Import necessary items from Keras
 from keras.models import Sequential
 from keras.layers import Activation, Dropout, UpSampling2D
 from keras.layers import Conv2DTranspose, Conv2D, MaxPooling2D
@@ -12,128 +11,134 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras import regularizers
 
 
-def create_model(input_shape, pool_size):
-    # Create the actual neural network here
-    model = Sequential()
-    # Normalizes incoming inputs. First layer needs the input shape to work
-    model.add(BatchNormalization(input_shape=input_shape))
+def build_CNN(input_dim, pooling_size):
+    # Initialize the CNN (Convolutional Neural Network)
+    cnn_model = Sequential()
 
-    # Below layers were re-named for easier reading of model summary; this not necessary
+    # Input normalization layer
+    cnn_model.add(BatchNormalization(input_shape=input_dim))
+
+    #region Convolutional Layers (with pooling and dropout) 
+     
     # Conv Layer 1
-    model.add(Conv2D(8, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv1'))
+    cnn_model.add(Conv2D(8, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv1'))
 
     # Conv Layer 2
-    model.add(Conv2D(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv2'))
+    cnn_model.add(Conv2D(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv2'))
 
     # Pooling 1
-    model.add(MaxPooling2D(pool_size=pool_size))
+    cnn_model.add(MaxPooling2D(pool_size=pooling_size))
 
     # Conv Layer 3
-    model.add(Conv2D(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv3'))
-    model.add(Dropout(0.2))
+    cnn_model.add(Conv2D(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv3'))
+    cnn_model.add(Dropout(0.2))
 
     # Conv Layer 4
-    model.add(Conv2D(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv4'))
-    model.add(Dropout(0.2))
+    cnn_model.add(Conv2D(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv4'))
+    cnn_model.add(Dropout(0.2))
 
     # Conv Layer 5
-    model.add(Conv2D(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv5'))
-    model.add(Dropout(0.2))
+    cnn_model.add(Conv2D(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv5'))
+    cnn_model.add(Dropout(0.2))
 
     # Pooling 2
-    model.add(MaxPooling2D(pool_size=pool_size))
+    cnn_model.add(MaxPooling2D(pool_size=pooling_size))
 
     # Conv Layer 6
-    model.add(Conv2D(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv6'))
-    model.add(Dropout(0.2))
+    cnn_model.add(Conv2D(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv6'))
+    cnn_model.add(Dropout(0.2))
 
     # Conv Layer 7
-    model.add(Conv2D(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv7'))
-    model.add(Dropout(0.2))
+    cnn_model.add(Conv2D(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Conv7'))
+    cnn_model.add(Dropout(0.2))
 
     # Pooling 3
-    model.add(MaxPooling2D(pool_size=pool_size))
+    cnn_model.add(MaxPooling2D(pool_size=pooling_size))
 
     # Upsample 1
-    model.add(UpSampling2D(size=pool_size))
+    cnn_model.add(UpSampling2D(size=pooling_size))
+        
+    #endregion
 
+    #region Deconvolutional Layers 
     # Deconv 1
-    model.add(Conv2DTranspose(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv1'))
+    cnn_model.add(Conv2DTranspose(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv1'))
 
     # Deconv 2
-    model.add(Conv2DTranspose(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv2'))
+    cnn_model.add(Conv2DTranspose(64, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv2'))
 
     # Upsample 2
-    model.add(UpSampling2D(size=pool_size))
+    cnn_model.add(UpSampling2D(size=pooling_size))
 
     # Deconv 3
-    model.add(Conv2DTranspose(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv3'))
+    cnn_model.add(Conv2DTranspose(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv3'))
 
     # Deconv 4
-    model.add(Conv2DTranspose(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv4'))
+    cnn_model.add(Conv2DTranspose(32, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv4'))
 
     # Deconv 5
-    model.add(Conv2DTranspose(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv5'))
+    cnn_model.add(Conv2DTranspose(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv5'))
 
     # Upsample 3
-    model.add(UpSampling2D(size=pool_size))
+    cnn_model.add(UpSampling2D(size=pooling_size))
 
     # Deconv 6
-    model.add(Conv2DTranspose(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv6'))
+    cnn_model.add(Conv2DTranspose(16, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Deconv6'))
 
     # Final layer - only including one channel so 1 filter
-    model.add(Conv2DTranspose(1, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Final'))
+    cnn_model.add(Conv2DTranspose(1, (3, 3), padding='valid', strides=(1,1), activation = 'relu', name = 'Final'))
+    #endregion
 
-    return model
+    return cnn_model
 
 
 def main():
-    # Load training images
-    train_images = pickle.load(open("Dataset/CNN_train.p", "rb" ))
+    # Set model parameters
+    pooling_size = (2, 2) 
+    input_dim = X_train.shape[1:]
+    b_size = 128
+    n_epochs = 1
 
-    # Load image labels
-    labels = pickle.load(open("Dataset/CNN_labels.p", "rb" ))
+    # Load the training data and labels
+    train_dataset = pickle.load(open("Dataset/CNN_train.p", "rb" ))
+    labels_dataset = pickle.load(open("Dataset/CNN_labels.p", "rb" ))
 
-    # Make into arrays as the neural network wants these
-    train_images = np.array(train_images)
-    labels = np.array(labels)
+    # Convert datasets to numpy arrays for Keras
+    train_dataset = np.array(train_dataset)
+    labels_dataset = np.array(labels_dataset)
 
-    # Normalize labels - training images get normalized to start in the network
-    labels = labels / 255
+    # Normalize the labels dataset to match the image normalization
+    labels_dataset = labels_dataset / 255
 
-    # Shuffle images along with their labels, then split into training/validation sets
-    train_images, labels = shuffle(train_images, labels)
-    # Test size may be 10% or 20%
-    X_train, X_val, y_train, y_val = train_test_split(train_images, labels, test_size=0.1)
+    # Shuffle and split the dataset into training and validation sets
+    train_dataset, labels_dataset = shuffle(train_dataset, labels_dataset)
+    X_train, X_val, y_train, y_val = train_test_split(train_dataset, labels_dataset, test_size=0.2)
 
-    # Batch size, epochs and pool size below are all paramaters to fiddle with for optimization
-    batch_size = 128
-    epochs = 1
-    pool_size = (2, 2) #viene utilizzato nel MaxPooling2D e si riferisce alla dimensioen della finestra usasta nei layer di pooling nelle reti neurali convoluzionali (CNNs)
-    input_shape = X_train.shape[1:] # usato per definire la forma dell'input che il modello si aspetta di ricevere. In altre parole, e' la dimensione dei dati di ingresso che alimentano il modello (w,h,3->rgb)
+  
 
-    # Create the neural network
-    model = create_model(input_shape, pool_size)
+    # Data augmentation for improved training
+    augmentor = ImageDataGenerator(channel_shift_range=0.2)
+    augmentor.fit(X_train)
 
-    # Using a generator to help the model use less data
-    # Channel shifts help with shadows slightly
-    datagen = ImageDataGenerator(channel_shift_range=0.2)
-    datagen.fit(X_train)
+    # Build and compile the CNN
+    neural_net = build_CNN(input_dim, pooling_size)
 
-    # Compiling and training the model
-    model.compile(optimizer='Adam', loss='mean_squared_error')
-    model.fit_generator(datagen.flow(X_train, y_train, batch_size=batch_size), steps_per_epoch=len(X_train)/batch_size,
-    epochs=epochs, verbose=1, validation_data=(X_val, y_val))
 
-    # Freeze layers since training is done
-    model.trainable = False
-    model.compile(optimizer='Adam', loss='mean_squared_error')
 
-    # Save model architecture and weights
-    model.save('Models/CNN_model.h5')
+    # Train the CNN
+    neural_net.compile(optimizer='Adam', loss='mean_squared_error')
+    neural_net.fit_generator(augmentor.flow(X_train, y_train, b_size=b_size), steps_per_epoch=len(X_train)/b_size,
+    epochs=n_epochs, verbose=1, validation_data=(X_val, y_val))
 
-    # Show summary of model
-    model.summary()
+    # Finalize the model
+    neural_net.trainable = False
+    neural_net.compile(optimizer='Adam', loss='mean_squared_error')
+
+    # Save the CNN architecture and weights
+    neural_net.save('Models/CNN_model.h5')
+
+    # Display a summary of the CNN
+    neural_net.summary()
 
 if __name__ == '__main__':
     main()
