@@ -95,7 +95,7 @@ def main():
     # Set model parameters
     pooling_size = (2, 2) 
     b_size = 128
-    n_epochs = 1
+    n_epochs = 10
 
     # Load the training data and labels
     train_dataset = pickle.load(open("Dataset/CNN_train.p", "rb" ))
