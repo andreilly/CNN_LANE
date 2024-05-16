@@ -122,7 +122,7 @@ def main():
 
     # Train the CNN
     neural_net.compile(optimizer='Adam', loss='mean_squared_error')
-    neural_net.fit_generator(augmentor.flow(X_train, y_train, b_size=b_size), steps_per_epoch=len(X_train)/b_size,
+    neural_net.fit_generator(augmentor.flow(X_train, y_train, batch_size=b_size), steps_per_epoch=len(X_train)/b_size,
     epochs=n_epochs, verbose=1, validation_data=(X_val, y_val))
 
     # Finalize the model
