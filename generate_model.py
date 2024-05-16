@@ -94,7 +94,6 @@ def build_CNN(input_dim, pooling_size):
 def main():
     # Set model parameters
     pooling_size = (2, 2) 
-    input_dim = X_train.shape[1:]
     b_size = 128
     n_epochs = 1
 
@@ -112,6 +111,7 @@ def main():
     # Shuffle and split the dataset into training and validation sets
     train_dataset, labels_dataset = shuffle(train_dataset, labels_dataset)
     X_train, X_val, y_train, y_val = train_test_split(train_dataset, labels_dataset, test_size=0.2)
+    input_dim = X_train.shape[1:]
 
     # Data augmentation for improved training
     augmentor = ImageDataGenerator(channel_shift_range=0.2)
